@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 def _exists(value) -> bool:
     if value:
         return True
-    return JsonResponse({'succes': False, 'message': f'Передайте параметр {value}'})
+    return JsonResponse({'success': False, 'message': f'Передайте параметр {value}'})
 
 def _is_valid_username(username):
     if re.search(r'[^a-zA-Z0-9\@\+\.\-\_]', username):
@@ -24,7 +24,7 @@ def _is_valid_password_length(password):
 def _is_confirm_password_equal_to_password(confirm_password, password):
     if confirm_password == password:
         return True
-    return JsonResponse({'succes': False, 'message': 'Пароли не совпадают'})
+    return JsonResponse({'success': False, 'message': 'Пароли не совпадают'})
 
 def validate_form(request):
     username, password, confirm_password = tuple(
