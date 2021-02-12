@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.core import exceptions
 
 from .models import Profile
 
@@ -11,19 +12,44 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'date_joined')
+        fields = ('username', 'email', 'password')
         extra_kwargs = {
-            #'email': {'required': True},
-            'password': {'write_only': True}
+            'email': {'required': True},
+            'password': {
+                'write_only': True, 
+                'required': True,
+                'style': {'input_type': 'password'}
+            },
         }
 
+    def validate(self, attrs):
+        user = User(**attrs)
+        password = attrs.get('password')
+
+        try:
+            validate_password(password, user)
+        except exceptions.ValidationError as error:
+            serializer_error = serializers.as_serializer_error(error)
+            
+            raise serializers.ValidationError(
+                {'password': serializer_error['non_field_errors']}
+            )
+
+        return attrs
+
     def create(self, validated_data):
-        return User.objects.create_user(username=validated_data['username'], password=validated_data['password'])
+        return User.objects.create_user(**validated_data)
 
 
 class ChangeUserPasswordSerializer(serializers.ModelSerializer):
-    old_password = serializers.CharField(write_only=True, required=True)
-    new_password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    '''Сериалайзер изменения'''
+
+    old_password = serializers.CharField(write_only=True, required=True, style={'input': 'password'})
+    new_password = serializers.CharField(
+        write_only=True, required=True, 
+        validators=[validate_password],
+        style={'input': 'password'}
+    )
 
     class Meta:
         model = User
