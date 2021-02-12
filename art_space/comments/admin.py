@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from comments.models import ArtComment, AudioComment
+from .models import ArtComment, AudioComment
 
 
 @admin.register(ArtComment)
@@ -8,6 +8,7 @@ class ArtCommentAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'comment_author', 'art'
     )
+
 
 @admin.register(AudioComment)
 class AudioCommentAdmin(admin.ModelAdmin):

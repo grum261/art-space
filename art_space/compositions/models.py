@@ -1,6 +1,6 @@
 from django.db import models
 
-from user.models import Activities
+from users.models import Activities
 
 
 class AbstractComposition(models.Model):
@@ -9,7 +9,7 @@ class AbstractComposition(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     composition_author = models.ForeignKey(
-        to='user.Profile', on_delete=models.DO_NOTHING, 
+        to='users.Profile', on_delete=models.DO_NOTHING, 
         default='self', verbose_name='Composition author'
     )
     category = models.CharField(max_length=255, choices=Activities.choices)
@@ -17,6 +17,7 @@ class AbstractComposition(models.Model):
 
     class Meta:
         abstract = True
+
 
 class Audio(AbstractComposition):
     '''Песня, загружаемая пользователем'''
@@ -33,6 +34,7 @@ class Audio(AbstractComposition):
 
     class Meta:
         db_table = 'audio'
+
 
 class Art(AbstractComposition):
     '''Картина, загружаемая пользователем'''
