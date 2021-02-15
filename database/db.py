@@ -1,7 +1,8 @@
 import databases
 
-from sqlalchemy import MetaData
-from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+from sqlalchemy import MetaData, Boolean, Column, Integer, String, DateTime, Text, ForeignKey, Table
+from sqlalchemy.ext.declarative import declarative_base, DeferredReflection
 from sqlalchemy import create_engine
 
 
@@ -11,7 +12,6 @@ database = databases.Database(DATABASE_URL)
 
 metadata = MetaData()
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-metadata.bind(engine)
+engine = create_engine(DATABASE_URL)
 
-Base = declarative_base()
+Base = declarative_base(metadata=metadata)
