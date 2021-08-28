@@ -33,7 +33,7 @@ func initPostRequests(ctx context.Context, db PGDB) error {
 		ctx, "Select.Post.Id",
 		`SELECT p.id, p.text, p.created_at, p.updated_at, u.id as author_id, u.username as author_name, u.avatar
 		FROM posts p
-		INNER JOIN users ON p.author_Id = u.id`,
+		INNER JOIN users u ON p.author_Id = u.id`,
 	); err != nil {
 		return fmt.Errorf("ошибка подготовки запроса Select.Post.Id: %w", err)
 	}
@@ -42,14 +42,14 @@ func initPostRequests(ctx context.Context, db PGDB) error {
 		ctx, "Select.Post.Author",
 		`SELECT p.id, p.text, p.created_at, p.updated_at, u.id as author_id, u.username as author_name, u.avatar
 		FROM posts p
-		INNER JOIN users ON p.author_Id = u.id
+		INNER JOIN users u ON p.author_Id = u.id
 		WHERE u.username = $1
 		ORDER BY p.created_at`,
 	); err != nil {
 		return fmt.Errorf("ошибка подготовки запроса Select.Post.Author: %w", err)
 	}
 
-	if _, err := db.Prepare(ctx, "Delete.Post.Id", `DELETE FROM post WHERE id = $1`); err != nil {
+	if _, err := db.Prepare(ctx, "Delete.Post.Id", `DELETE FROM posts WHERE id = $1`); err != nil {
 		return fmt.Errorf("ошибка подготовки запроса Delete.Post.Id: %w", err)
 	}
 

@@ -89,10 +89,10 @@ func (ph *PostHandler) selectAllHandler(c *fiber.Ctx) error {
 		return renderErrReponse(c, err)
 	}
 
-	response := []*Post{}
+	response := []Post{}
 
 	for _, post := range posts {
-		p := &Post{
+		p := Post{
 			Id:   post.Id,
 			Text: post.Text,
 			Dates: Dates{

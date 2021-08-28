@@ -17,15 +17,17 @@ func main() {
 	ctx := context.TODO()
 
 	// TODO: сделать флаг для запуска без докера
-	if err := dockercontainer.StartContainers(); err != nil {
+	if err := dockercontainer.StartAllContainers(); err != nil {
 		logrus.Fatal(err)
 	}
+
+	// TODO: добавить мигрирование
 
 	db := pgdb.NewDB(ctx, envvar.Configuration)
 	defer db.Close(ctx)
 
-	repo := pgdb.NewPost(db)
-	svc := service.NewPost(repo)
+	postRepo := pgdb.NewPost(db)
+	svc := service.NewPost(postRepo)
 
 	app := fiber.New(fiber.Config{
 		ReadTimeout:  time.Second * 1,

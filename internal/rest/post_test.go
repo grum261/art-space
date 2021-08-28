@@ -13,6 +13,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// TODO: это все дело пока не работает, нужно переписать с использование функции Test у файбера
+
 type test struct {
 	expected interface{}
 	target   interface{}

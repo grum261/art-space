@@ -61,13 +61,13 @@ func NewDB(ctx context.Context, conf *envvar.VaultConfiguration) *pgx.Conn {
 		logrus.Fatalf("Не удалось пингануть БД: %v", err)
 	}
 
-	// if err := initPostRequests(ctx, db); err != nil {
-	// 	logrus.Fatal(err)
-	// }
+	if err := initPostRequests(ctx, db); err != nil {
+		logrus.Fatal(err)
+	}
 
-	// if err := initCommentRequests(ctx, db); err != nil {
-	// 	logrus.Fatal(err)
-	// }
+	if err := initCommentRequests(ctx, db); err != nil {
+		logrus.Fatal(err)
+	}
 
 	return db
 }

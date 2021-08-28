@@ -29,6 +29,12 @@ type containerDirector struct {
 	builder containerBuilder // поле билдера
 }
 
+// containerBase базовая структура, поля которой должны быть у каждого билдера
+type containerBase struct {
+	cli *client.Client  // поле докер клиента
+	ctx context.Context // контекст
+}
+
 // constructContainer конструирует контейнер конкретного билдера
 func (cd *containerDirector) constructContainer() error {
 	if err := cd.builder.setFields(); err != nil {
@@ -67,8 +73,8 @@ func (cd *containerDirector) setContainerBuilder(b containerBuilder) {
 
 // TODO: контейнер для мигрирования в базу
 
-// StartContainers функция запускающая все контейнеры
-func StartContainers() error {
+// StartAllContainers создает и запускает все контейнеры
+func StartAllContainers() error {
 	vb := &vaultBuilder{}
 
 	cli, err := client.NewClientWithOpts(client.FromEnv)
