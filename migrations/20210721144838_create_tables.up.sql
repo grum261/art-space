@@ -1,0 +1,29 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR NOT NULL,
+    password VARCHAR NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT current_timestamp,
+    bio VARCHAR(500),
+    avatar VARCHAR
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    text VARCHAR NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT current_timestamp,
+    comment_id INT,
+    author_id INT REFERENCES users ON DELETE CASCADE
+);
+
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    text VARCHAR NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT current_timestamp,
+    author_id INT REFERENCES users ON DELETE NO ACTION,
+    post_id INT REFERENCES posts ON DELETE CASCADE
+);
+
+ALTER TABLE posts ADD CONSTRAINT comments_fk FOREIGN KEY (comment_id) REFERENCES comments (id) ON DELETE NO ACTION;
