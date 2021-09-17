@@ -40,12 +40,12 @@ type Post struct {
 type Author struct {
 	Id     int    `json:"id"`
 	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
+	Avatar string `json:"avatar,omitempty"`
 }
 
 type CreateUpdatePostRequest struct {
 	Text     string `json:"text"`
-	AuthorId int    `json:"author"`
+	AuthorId int    `json:"authorId"`
 }
 
 type Comment struct {

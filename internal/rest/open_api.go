@@ -19,7 +19,7 @@ func NewOpenApi3() openapi3.T {
 		},
 		Servers: openapi3.Servers{
 			{
-				URL:         "192.168.183.84:8000",
+				URL:         "http://172.25.122.55:8000/",
 				Description: "Local dev",
 			},
 		},

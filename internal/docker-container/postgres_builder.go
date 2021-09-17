@@ -12,41 +12,12 @@ import (
 
 // postgresBuilder конкретный тип билдера для контейнера postgres
 type postgresBuilder struct {
-	containerBase                     // базовая структура, содержащая докер клиент и контекст
-	username, password, dbName string // поля переменных окружения контейнера
+	containerBase // базовая структура, содержащая докер клиент и контекст
 }
 
 // getBase возвращает докер клиента и контекст билдера
 func (pb *postgresBuilder) getBase() (*client.Client, context.Context) {
 	return pb.cli, pb.ctx
-}
-
-func (pb *postgresBuilder) setFields() (err error) {
-	get := func(v string) (string, error) {
-		res, err := envvar.Configuration.Get(v)
-		if err != nil {
-			return "", fmt.Errorf("не удалось получить значение конфигурации для %s: %w", v, err)
-		}
-
-		return res, nil
-	}
-
-	pb.username, err = get("PGDB_USERNAME")
-	if err != nil {
-		return err
-	}
-
-	pb.password, err = get("PGDB_PASSWORD")
-	if err != nil {
-		return err
-	}
-
-	pb.dbName, err = get("PGDB_NAME")
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // setBase устанавливает контекст и докер клиент для билдера
@@ -61,9 +32,9 @@ func (pb *postgresBuilder) makeContainer() (container.ContainerCreateCreatedBody
 		&container.Config{
 			ExposedPorts: nat.PortSet{"5432": struct{}{}},
 			Env: []string{
-				fmt.Sprintf("POSTGRES_USER=%s", pb.username),
-				fmt.Sprintf("POSTGRES_PASSWORD=%s", pb.password),
-				fmt.Sprintf("POSTGRES_DB=%s", pb.dbName),
+				fmt.Sprintf("POSTGRES_USER=%s", envvar.Config.DB.Username),
+				fmt.Sprintf("POSTGRES_PASSWORD=%s", envvar.Config.DB.Password),
+				fmt.Sprintf("POSTGRES_DB=%s", envvar.Config.DB.Name),
 			},
 			Image: "postgres:latest",
 		}, &container.HostConfig{

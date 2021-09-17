@@ -1,6 +1,7 @@
 package pgdb
 
 import (
+	"art_space/internal/models"
 	"context"
 	"fmt"
 
@@ -17,14 +18,14 @@ type CommentReturn struct {
 	AuthorAvatar string
 }
 
-func (q *Queries) SelectCommentsOnPost(ctx context.Context, postId int) ([]CommentReturn, error) {
-	rows, err := q.db.Query(ctx, "Select.Comment.Post", postId)
+func (q *Queries) SelectCommentsOnPost(ctx context.Context, postId int) ([]models.Comment, error) {
+	rows, err := q.db.Query(ctx, selectCommentsByPost, postId)
 	if err != nil {
-		return nil, fmt.Errorf("(SelectCommentsOnPost) ошибка получение комментариев к посту: %w", err)
+		return nil, fmt.Errorf("(pgdb.Queries.SelectCommentsOnPost) ошибка получение комментариев к посту: %w", err)
 	}
 	defer rows.Close()
 
-	var _out []CommentReturn
+	var _out []models.Comment
 
 	for rows.Next() {
 		var r CommentReturn
@@ -33,10 +34,24 @@ func (q *Queries) SelectCommentsOnPost(ctx context.Context, postId int) ([]Comme
 			&r.Id, &r.Text, &r.CreatedAt, &r.UpdatedAt,
 			&r.AuthorId, &r.AuthorName, &r.AuthorAvatar,
 		); err != nil {
-			return nil, fmt.Errorf("(SelectCommentsOnPost) ошибка сканирования строк: %w", err)
+			return nil, fmt.Errorf("(pgdb.Queries.SelectCommentsOnPost) ошибка сканирования строк: %w", err)
 		}
 
-		_out = append(_out, r)
+		_out = append(
+			_out, models.Comment{
+				Id:   r.Id,
+				Text: r.Text,
+				Dates: models.Dates{
+					CreatedAt: r.CreatedAt.Time,
+					UpdatedAt: r.UpdatedAt.Time,
+				},
+				Author: models.Author{
+					Id:     r.AuthorId,
+					Name:   r.AuthorName,
+					Avatar: r.AuthorAvatar,
+				},
+			},
+		)
 	}
 
 	return _out, nil

@@ -11,9 +11,6 @@ import (
 )
 
 type containerBuilder interface {
-	// setFields устанавливает все поля билдера, которые будут являться переменными окружения при создании контейнера
-	setFields() error
-
 	// setBase устанавливает контекст и докер клиент для билдера
 	setBase(ctx context.Context, cli *client.Client)
 
@@ -37,10 +34,6 @@ type containerBase struct {
 
 // constructContainer конструирует контейнер конкретного билдера
 func (cd *containerDirector) constructContainer() error {
-	if err := cd.builder.setFields(); err != nil {
-		return err
-	}
-
 	cli, ctx := cd.builder.getBase()
 
 	resp, err := cd.builder.makeContainer()
@@ -70,8 +63,6 @@ func newContainerDirector(b containerBuilder) (*containerDirector, error) {
 func (cd *containerDirector) setContainerBuilder(b containerBuilder) {
 	cd.builder = b
 }
-
-// TODO: контейнер для мигрирования в базу
 
 // StartAllContainers создает и запускает все контейнеры
 func StartAllContainers() error {

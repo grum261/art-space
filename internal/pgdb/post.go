@@ -5,23 +5,34 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v4"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
+// Post репозиторий для взаимодействия с записями в базе
 type Post struct {
 	q *Queries
 }
 
+// NewPost создает новый инстанс Post репозитория
 func NewPost(db *pgx.Conn) *Post {
 	return &Post{
 		q: New(db),
 	}
 }
 
+// CreatePost вставляет новый пост в базу
 func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, error) {
-	postId, err := p.q.InsertPost(ctx, PostInsert{
-		Text:     text,
-		AuthorId: authorId,
-	})
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Create")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
+	postId, err := p.q.InsertPost(
+		ctx, PostInsert{
+			Text:     text,
+			AuthorId: authorId,
+		},
+	)
 	if err != nil {
 		return 0, err
 	}
@@ -29,124 +40,61 @@ func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, 
 	return postId, nil
 }
 
+// SelectAllPosts возвращает все посты из базы
 func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectAll")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
 	posts, err := p.q.SelectAllPosts(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var _out []models.Post
-
-	for _, post := range posts {
-		pm := models.Post{
-			Id:   post.Id,
-			Text: post.Text,
-			Dates: models.Dates{
-				CreatedAt: post.CreatedAt.Time,
-				UpdatedAt: post.UpdatedAt.Time,
-			},
-			Author: models.Author{
-				Id:     post.AuthorId,
-				Name:   post.AuthorName,
-				Avatar: post.AuthorAvatar,
-			},
-		}
-
-		comments, err := p.q.SelectCommentsOnPost(ctx, post.Id)
+	for i := range posts {
+		comments, err := p.q.SelectCommentsOnPost(ctx, posts[i].Id)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, comment := range comments {
-			pm.Comments = append(pm.Comments, models.Comment{
-				Id:   comment.Id,
-				Text: comment.Text,
-				Dates: models.Dates{
-					CreatedAt: comment.CreatedAt.Time,
-					UpdatedAt: comment.UpdatedAt.Time,
-				},
-				Author: models.Author{
-					Id:     comment.AuthorId,
-					Name:   comment.AuthorName,
-					Avatar: comment.AuthorAvatar,
-				},
-			})
-		}
-
-		_out = append(_out, pm)
+		posts[i].Comments = comments
 	}
 
-	return _out, nil
+	return posts, nil
 }
 
+// SelectPostsByAuthor возвращает все посты по автору
 func (p *Post) SelectPostsByAuthor(ctx context.Context, authorName string) ([]models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectByAuthor")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
 	posts, err := p.q.SelectPostsByAuthor(ctx, authorName)
 	if err != nil {
 		return nil, err
 	}
 
-	var _out []models.Post
-
-	for _, post := range posts {
-		pm := models.Post{
-			Id:   post.Id,
-			Text: post.Text,
-			Dates: models.Dates{
-				CreatedAt: post.CreatedAt.Time,
-				UpdatedAt: post.UpdatedAt.Time,
-			},
-			Author: models.Author{
-				Id:     post.AuthorId,
-				Name:   authorName,
-				Avatar: post.AuthorAvatar,
-			},
-		}
-
-		comments, err := p.q.SelectCommentsOnPost(ctx, post.Id)
+	for i := range posts {
+		comments, err := p.q.SelectCommentsOnPost(ctx, posts[i].Id)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, comment := range comments {
-			pm.Comments = append(pm.Comments, models.Comment{
-				Id:   comment.Id,
-				Text: comment.Text,
-				Dates: models.Dates{
-					CreatedAt: comment.CreatedAt.Time,
-					UpdatedAt: comment.UpdatedAt.Time,
-				},
-				Author: models.Author{
-					Id:     comment.AuthorId,
-					Name:   comment.AuthorName,
-					Avatar: comment.AuthorAvatar,
-				},
-			})
-		}
-
-		_out = append(_out, pm)
+		posts[i].Comments = comments
 	}
 
-	return _out, nil
+	return posts, nil
 }
 
+// SelectPostById возвращает пост по id
 func (p *Post) SelectPostById(ctx context.Context, postId int) (models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectById")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
 	post, err := p.q.SelectPostById(ctx, postId)
 	if err != nil {
 		return models.Post{}, err
-	}
-
-	pm := models.Post{
-		Id:   postId,
-		Text: post.Text,
-		Dates: models.Dates{
-			CreatedAt: post.CreatedAt.Time,
-			UpdatedAt: post.UpdatedAt.Time,
-		},
-		Author: models.Author{
-			Id:     post.AuthorId,
-			Name:   post.AuthorName,
-			Avatar: post.AuthorAvatar,
-		},
 	}
 
 	comments, err := p.q.SelectCommentsOnPost(ctx, postId)
@@ -154,26 +102,17 @@ func (p *Post) SelectPostById(ctx context.Context, postId int) (models.Post, err
 		return models.Post{}, err
 	}
 
-	for _, comment := range comments {
-		pm.Comments = append(pm.Comments, models.Comment{
-			Id:   comment.Id,
-			Text: comment.Text,
-			Dates: models.Dates{
-				CreatedAt: comment.CreatedAt.Time,
-				UpdatedAt: comment.UpdatedAt.Time,
-			},
-			Author: models.Author{
-				Id:     comment.AuthorId,
-				Name:   comment.AuthorName,
-				Avatar: comment.AuthorAvatar,
-			},
-		})
-	}
+	post.Comments = comments
 
-	return pm, nil
+	return post, nil
 }
 
+// UpdatePost обновляет пост по id
 func (p *Post) UpdatePost(ctx context.Context, postId int, postText string) error {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Update")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
 	if err := p.q.UpdatePost(ctx, PostUpdate{
 		Id:   postId,
 		Text: postText,
@@ -184,7 +123,12 @@ func (p *Post) UpdatePost(ctx context.Context, postId int, postText string) erro
 	return nil
 }
 
+// DeletePost удаляет пост
 func (p *Post) DeletePost(ctx context.Context, postId int) error {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Delete")
+	span.SetAttributes(attribute.String("db.system", "postgresql"))
+	defer span.End()
+
 	if err := p.q.DeletePost(ctx, postId); err != nil {
 		return err
 	}

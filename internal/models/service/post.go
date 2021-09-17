@@ -4,6 +4,8 @@ import (
 	"art_space/internal/models"
 	"context"
 	"fmt"
+
+	"go.opentelemetry.io/otel/trace"
 )
 
 type PostRepository interface {
@@ -26,6 +28,9 @@ func NewPost(repo PostRepository) *Post {
 }
 
 func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Create")
+	defer span.End()
+
 	id, err := p.repo.CreatePost(ctx, text, authorId)
 	if err != nil {
 		return 0, fmt.Errorf("репозиторий постов - вставка записи: %w", err)
@@ -35,6 +40,9 @@ func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, 
 }
 
 func (p *Post) UpdatePost(ctx context.Context, id int, text string) error {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Update")
+	defer span.End()
+
 	if err := p.repo.UpdatePost(ctx, id, text); err != nil {
 		return fmt.Errorf("репозиторий постов - обновление: %w", err)
 	}
@@ -43,6 +51,9 @@ func (p *Post) UpdatePost(ctx context.Context, id int, text string) error {
 }
 
 func (p *Post) DeletePost(ctx context.Context, id int) error {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Delete")
+	defer span.End()
+
 	if err := p.repo.DeletePost(ctx, id); err != nil {
 		return fmt.Errorf("репозиторий постов - удаление: %w", err)
 	}
@@ -51,6 +62,9 @@ func (p *Post) DeletePost(ctx context.Context, id int) error {
 }
 
 func (p *Post) SelectPostById(ctx context.Context, id int) (models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectById")
+	defer span.End()
+
 	post, err := p.repo.SelectPostById(ctx, id)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("репозиторий постов - получение записи по id: %w", err)
@@ -60,6 +74,9 @@ func (p *Post) SelectPostById(ctx context.Context, id int) (models.Post, error) 
 }
 
 func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("repository.SelectAllPosts").Start(ctx, "Post.SelectAll")
+	defer span.End()
+
 	posts, err := p.repo.SelectAllPosts(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("репозиторий постов - получение всех записей: %w", err)
@@ -69,6 +86,9 @@ func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
 }
 
 func (p *Post) SelectPostsByAuthor(ctx context.Context, authorName string) ([]models.Post, error) {
+	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectByAuthor")
+	defer span.End()
+
 	posts, err := p.repo.SelectPostsByAuthor(ctx, authorName)
 	if err != nil {
 		return nil, fmt.Errorf("репозиторий постов - получение постов по автору: %w", err)

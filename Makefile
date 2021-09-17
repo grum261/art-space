@@ -11,6 +11,3 @@ migrate-up:
 
 migrate-down:
 	migrate -path=migrations -database=postgres://${PGDB_USERNAME}:${PGDB_PASSWORD}@${PGDB_HOST}:${PGDB_PORT}/${PGDB_NAME} down
-
-gen-sql:
-	sqlc generate -f "internal/pgdb/sqlc.yml"

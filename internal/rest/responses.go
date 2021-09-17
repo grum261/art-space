@@ -1,16 +1,27 @@
 package rest
 
-import "github.com/gofiber/fiber/v2"
-
-type JsonResponse struct {
-	Error  error       `json:"error"`
-	Result interface{} `json:"result"`
-}
+import (
+	"github.com/gofiber/fiber/v2"
+	"go.opentelemetry.io/otel/trace"
+)
 
 func renderResponse(c *fiber.Ctx, result interface{}, statusCode int, err error) error {
-	return c.Status(statusCode).JSON(JsonResponse{
-		Error:  err,
-		Result: result,
+	if err != nil {
+		_, span := trace.SpanFromContext(c.Context()).TracerProvider().Tracer("").Start(c.Context(), "rest.renderErrResponse")
+		span.RecordError(err)
+		defer span.End()
+
+		return c.Status(statusCode).JSON(map[string]interface{}{
+			"error":  err.Error(),
+			"result": nil,
+		})
+	}
+	_, span := trace.SpanFromContext(c.Context()).TracerProvider().Tracer("").Start(c.Context(), "rest.renderResponseOK")
+	defer span.End()
+
+	return c.Status(statusCode).JSON(map[string]interface{}{
+		"error":  nil,
+		"result": result,
 	})
 }
 

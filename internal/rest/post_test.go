@@ -50,11 +50,11 @@ func TestPost_CreateHandler(t *testing.T) {
 			}(),
 			output{
 				http.StatusCreated,
-				rest.JsonResponse{
-					Error:  nil,
-					Result: 3,
+				map[string]interface{}{
+					"error":  nil,
+					"result": 3,
 				},
-				&rest.JsonResponse{},
+				&map[string]interface{}{},
 			},
 		},
 	}
