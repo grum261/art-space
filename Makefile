@@ -7,7 +7,4 @@ build:
 	go build -o art_space cmd/main.go
 
 migrate-up:
-	migrate -path=./migrations -database=postgres://${PGDB_USERNAME}:${PGDB_PASSWORD}@${PGDB_HOST}:${PGDB_PORT}/${PGDB_NAME}?sslmode=disable up
-
-migrate-down:
-	migrate -path=migrations -database=postgres://${PGDB_USERNAME}:${PGDB_PASSWORD}@${PGDB_HOST}:${PGDB_PORT}/${PGDB_NAME} down
+	docker-compose run api migrate -path=./migrations -database=pgx://${PGDB_USERNAME}:${PGDB_PASSWORD}@localhost:${PGDB_PORT}/${PGDB_NAME}?sslmode=disable up

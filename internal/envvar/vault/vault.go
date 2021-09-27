@@ -34,7 +34,7 @@ func New(token, addr, path string) (*Provider, error) {
 }
 
 func (p *Provider) WriteSecret(path string, data map[string]interface{}) error {
-	if _, err := p.client.Write(path, data); err != nil {
+	if _, err := p.client.Write(p.path+"/data/"+path, data); err != nil {
 		return err
 	}
 

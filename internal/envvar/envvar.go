@@ -38,6 +38,7 @@ type dBConfiguration struct {
 
 type Provider interface {
 	Get(key string) (string, error)
+	WriteSecret(path string, data map[string]interface{}) error
 }
 
 type Vault struct {
@@ -46,7 +47,7 @@ type Vault struct {
 
 func Load(fileName string) error {
 	if err := godotenv.Load(fileName); err != nil {
-		return fmt.Errorf("ошибка при загрузке env файла: %w", err)
+		return fmt.Errorf("(vault.Load) ошибка при загрузке env файла: %w", err)
 	}
 
 	return nil
@@ -91,6 +92,16 @@ func newVaultConfig() error {
 	p, err := vault.New(Config.Vault.Token, Config.Vault.Address, Config.Vault.Path)
 	if err != nil {
 		return fmt.Errorf("(envvar.vault.New) не удалось создать провайдер: %w", err)
+	}
+
+	if err := p.WriteSecret("database", map[string]interface{}{
+		"data": map[string]string{
+			"username": os.Getenv("PGDB_USERNAME"),
+			"password": os.Getenv("PGDB_PASSWORD"),
+			"db_name":  os.Getenv("PGDB_NAME"),
+		},
+	}); err != nil {
+		return fmt.Errorf("(envvar.VaultProvider.provider.WriteSecret) не удалось установить секреты: %w", err)
 	}
 
 	VaultProvider = New(p)

@@ -7,7 +7,7 @@ import (
 )
 
 //go:generate go run ../../cmd/openapi-gen/main.go -path .
-//go:generate oapi-codegen -package openapi3 -generate types -o ../../pkg/openapi3/task_types.gen.go openapi3.yaml
+//go:generate oapi-codegen -package openapi3 -generate types -o ../../pkg/openapi3/post_types.gen.go openapi3.yaml
 //go:generate oapi-codegen -package openapi3 -generate client -o ../../pkg/openapi3/client.gen.go     openapi3.yaml
 
 func NewOpenApi3() openapi3.T {
@@ -19,7 +19,7 @@ func NewOpenApi3() openapi3.T {
 		},
 		Servers: openapi3.Servers{
 			{
-				URL:         "http://172.25.122.55:8000/",
+				URL:         "http://localhost:8000/",
 				Description: "Local dev",
 			},
 		},

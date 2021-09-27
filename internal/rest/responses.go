@@ -7,7 +7,7 @@ import (
 
 func renderResponse(c *fiber.Ctx, result interface{}, statusCode int, err error) error {
 	if err != nil {
-		_, span := trace.SpanFromContext(c.Context()).TracerProvider().Tracer("").Start(c.Context(), "rest.renderErrResponse")
+		span := trace.SpanFromContext(c.Context())
 		span.RecordError(err)
 		defer span.End()
 
@@ -16,8 +16,6 @@ func renderResponse(c *fiber.Ctx, result interface{}, statusCode int, err error)
 			"result": nil,
 		})
 	}
-	_, span := trace.SpanFromContext(c.Context()).TracerProvider().Tracer("").Start(c.Context(), "rest.renderResponseOK")
-	defer span.End()
 
 	return c.Status(statusCode).JSON(map[string]interface{}{
 		"error":  nil,

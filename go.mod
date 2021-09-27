@@ -5,13 +5,11 @@ go 1.16
 require (
 	github.com/andybalholm/brotli v1.0.3 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2
-	github.com/docker/docker v20.10.8+incompatible
-	github.com/docker/go-connections v0.4.0
+	github.com/docker/docker v20.10.8+incompatible // indirect
 	github.com/getkin/kin-openapi v0.75.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/gofiber/adaptor/v2 v2.1.11
 	github.com/gofiber/fiber/v2 v2.18.0
-	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/google/go-cmp v0.5.6
 	github.com/hashicorp/vault/api v1.1.1
 	github.com/jackc/pgconn v1.10.0
@@ -24,7 +22,6 @@ require (
 	github.com/ory/dockertest/v3 v3.7.0
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.23.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.23.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.23.0
 	go.opentelemetry.io/otel v1.0.0-RC3
 	go.opentelemetry.io/otel/exporters/jaeger v1.0.0-RC3

@@ -20,6 +20,18 @@ type FakeProvider struct {
 		result1 string
 		result2 error
 	}
+	WriteSecretStub        func(string, map[string]interface{}) error
+	writeSecretMutex       sync.RWMutex
+	writeSecretArgsForCall []struct {
+		arg1 string
+		arg2 map[string]interface{}
+	}
+	writeSecretReturns struct {
+		result1 error
+	}
+	writeSecretReturnsOnCall map[int]struct {
+		result1 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -88,11 +100,75 @@ func (fake *FakeProvider) GetReturnsOnCall(i int, result1 string, result2 error)
 	}{result1, result2}
 }
 
+func (fake *FakeProvider) WriteSecret(arg1 string, arg2 map[string]interface{}) error {
+	fake.writeSecretMutex.Lock()
+	ret, specificReturn := fake.writeSecretReturnsOnCall[len(fake.writeSecretArgsForCall)]
+	fake.writeSecretArgsForCall = append(fake.writeSecretArgsForCall, struct {
+		arg1 string
+		arg2 map[string]interface{}
+	}{arg1, arg2})
+	stub := fake.WriteSecretStub
+	fakeReturns := fake.writeSecretReturns
+	fake.recordInvocation("WriteSecret", []interface{}{arg1, arg2})
+	fake.writeSecretMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeProvider) WriteSecretCallCount() int {
+	fake.writeSecretMutex.RLock()
+	defer fake.writeSecretMutex.RUnlock()
+	return len(fake.writeSecretArgsForCall)
+}
+
+func (fake *FakeProvider) WriteSecretCalls(stub func(string, map[string]interface{}) error) {
+	fake.writeSecretMutex.Lock()
+	defer fake.writeSecretMutex.Unlock()
+	fake.WriteSecretStub = stub
+}
+
+func (fake *FakeProvider) WriteSecretArgsForCall(i int) (string, map[string]interface{}) {
+	fake.writeSecretMutex.RLock()
+	defer fake.writeSecretMutex.RUnlock()
+	argsForCall := fake.writeSecretArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeProvider) WriteSecretReturns(result1 error) {
+	fake.writeSecretMutex.Lock()
+	defer fake.writeSecretMutex.Unlock()
+	fake.WriteSecretStub = nil
+	fake.writeSecretReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeProvider) WriteSecretReturnsOnCall(i int, result1 error) {
+	fake.writeSecretMutex.Lock()
+	defer fake.writeSecretMutex.Unlock()
+	fake.WriteSecretStub = nil
+	if fake.writeSecretReturnsOnCall == nil {
+		fake.writeSecretReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.writeSecretReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeProvider) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
+	fake.writeSecretMutex.RLock()
+	defer fake.writeSecretMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

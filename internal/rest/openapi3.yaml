@@ -178,4 +178,4 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 servers:
 - description: Local dev
-  url: http://172.25.122.55:8000
+  url: http://localhost:8000/

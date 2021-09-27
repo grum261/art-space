@@ -23,7 +23,7 @@ func NewPost(db *pgx.Conn) *Post {
 
 // CreatePost вставляет новый пост в базу
 func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Create")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 
@@ -42,7 +42,7 @@ func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, 
 
 // SelectAllPosts возвращает все посты из базы
 func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectAll")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 
@@ -65,7 +65,7 @@ func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
 
 // SelectPostsByAuthor возвращает все посты по автору
 func (p *Post) SelectPostsByAuthor(ctx context.Context, authorName string) ([]models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectByAuthor")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 
@@ -88,7 +88,7 @@ func (p *Post) SelectPostsByAuthor(ctx context.Context, authorName string) ([]mo
 
 // SelectPostById возвращает пост по id
 func (p *Post) SelectPostById(ctx context.Context, postId int) (models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectById")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 
@@ -109,7 +109,7 @@ func (p *Post) SelectPostById(ctx context.Context, postId int) (models.Post, err
 
 // UpdatePost обновляет пост по id
 func (p *Post) UpdatePost(ctx context.Context, postId int, postText string) error {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Update")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 
@@ -125,7 +125,7 @@ func (p *Post) UpdatePost(ctx context.Context, postId int, postText string) erro
 
 // DeletePost удаляет пост
 func (p *Post) DeletePost(ctx context.Context, postId int) error {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Delete")
+	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(attribute.String("db.system", "postgresql"))
 	defer span.End()
 

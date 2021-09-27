@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel"
 )
 
 type PostRepository interface {
@@ -28,7 +28,8 @@ func NewPost(repo PostRepository) *Post {
 }
 
 func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Create")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.Create")
 	defer span.End()
 
 	id, err := p.repo.CreatePost(ctx, text, authorId)
@@ -40,7 +41,8 @@ func (p *Post) CreatePost(ctx context.Context, text string, authorId int) (int, 
 }
 
 func (p *Post) UpdatePost(ctx context.Context, id int, text string) error {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Update")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.Update")
 	defer span.End()
 
 	if err := p.repo.UpdatePost(ctx, id, text); err != nil {
@@ -51,7 +53,8 @@ func (p *Post) UpdatePost(ctx context.Context, id int, text string) error {
 }
 
 func (p *Post) DeletePost(ctx context.Context, id int) error {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.Delete")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.Delete")
 	defer span.End()
 
 	if err := p.repo.DeletePost(ctx, id); err != nil {
@@ -62,7 +65,8 @@ func (p *Post) DeletePost(ctx context.Context, id int) error {
 }
 
 func (p *Post) SelectPostById(ctx context.Context, id int) (models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectById")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.SelectById")
 	defer span.End()
 
 	post, err := p.repo.SelectPostById(ctx, id)
@@ -74,7 +78,8 @@ func (p *Post) SelectPostById(ctx context.Context, id int) (models.Post, error) 
 }
 
 func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("repository.SelectAllPosts").Start(ctx, "Post.SelectAll")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.SelectAll")
 	defer span.End()
 
 	posts, err := p.repo.SelectAllPosts(ctx)
@@ -86,7 +91,8 @@ func (p *Post) SelectAllPosts(ctx context.Context) ([]models.Post, error) {
 }
 
 func (p *Post) SelectPostsByAuthor(ctx context.Context, authorName string) ([]models.Post, error) {
-	ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("").Start(ctx, "Post.SelectByAuthor")
+	tr := otel.Tracer("")
+	ctx, span := tr.Start(ctx, "Post.SelectByAuthor")
 	defer span.End()
 
 	posts, err := p.repo.SelectPostsByAuthor(ctx, authorName)

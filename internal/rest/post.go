@@ -136,7 +136,7 @@ func (ph *PostHandler) selectByIdHandler(c *fiber.Ctx) error {
 
 	post, err := ph.svc.SelectPostById(c.Context(), postId)
 	if err != nil {
-		renderErrReponse(c, err)
+		return renderErrReponse(c, err)
 	}
 
 	response := &Post{

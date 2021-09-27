@@ -99,8 +99,6 @@ func TestConfiguration_Get(t *testing.T) {
 				t.Fatalf("expected result does not match: %s", cmp.Diff(tt.output.val, actual))
 			}
 
-			//- Provider Args
-
 			if provider.GetCallCount() > 0 {
 				if arg := provider.GetArgsForCall(0); arg != tt.arg {
 					t.Fatalf("expected arg %s, got %s", arg, tt.arg)

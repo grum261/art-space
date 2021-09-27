@@ -1,7 +1,6 @@
 package main
 
 import (
-	dockercontainer "art_space/internal/docker-container"
 	"art_space/internal/envvar"
 	"art_space/internal/models/service"
 	"art_space/internal/pgdb"
@@ -13,6 +12,7 @@ import (
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -34,13 +34,6 @@ import (
 func main() {
 	ctx := context.TODO()
 
-	// TODO: сделать флаг для запуска без докера
-	if err := dockercontainer.StartAllContainers(); err != nil {
-		log.Fatal(err)
-	}
-
-	// TODO: добавить мигрирование
-
 	db := pgdb.NewDB(ctx)
 	defer db.Close(ctx)
 
@@ -58,7 +51,13 @@ func main() {
 
 	// TODO: нормальное логгирование для разных уровней
 	app.Use(func(c *fiber.Ctx) error {
-		logger.Info(c.Method(), zap.Time("time", time.Now()), zap.String("url", c.BaseURL()))
+		fields := []zapcore.Field{
+			zap.Int("statusCode", c.Response().StatusCode()),
+			zap.Time("time", time.Now()), zap.String("url", c.BaseURL()),
+			zap.String("endpoint", c.OriginalURL()),
+		}
+
+		logger.Info(c.Method(), fields...)
 
 		return c.Next()
 	})
@@ -75,6 +74,7 @@ func main() {
 
 	app.Use(adaptor.HTTPMiddleware(otelmux.Middleware("artspace-api-server")))
 
+	// TODO: graceful shutdown
 	log.Fatal(app.Listen(":8000"))
 }
 
